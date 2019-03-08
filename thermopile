@@ -1,0 +1,61 @@
+// Thermopile test
+
+// pins used
+#define A5
+#define A4
+#define LED 2
+#define I2CADDRESS 0x69 //(Look for address on wearables website and non-usable addresses)
+// constants for the thermistor calculations
+const float a = -412.6;
+const float b = 140.41;
+const float c = 0.00764;
+const float d = -0.0000000000000000625;
+const float e = -0.00000000000000000000000115;
+
+// constants for the thermopile calculation
+const float k = 0.004313; 
+const float delta = 2.468;
+
+const float reftemp = 25; // reference temperature is 25C
+const float shiftv = 0.6; // amount to shift thermopile voltage for negative V values in range
+const float verr = 0.6;  // voltage error introduced to thermopile by circuit
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  float thermopileValue = analogRead(0x69);
+  float thermistorValue = analogRead(0x69);
+  //Serial.print("thermopile value = ");
+  //Serial.println(thermopileValue);
+  //Serial.print("thermistor value = ");
+  //Serial.println(thermistorValue);
+  
+  //thermistor temp from reading
+  float v1 = (thermistorValue / 1024) * 3.3; // source voltage is 3.3V, 1024 is max units that volts map to
+  //Serial.println(v1);
+  float r = -(v1*100)/(v1-3.3); // resistance calculation
+  //Serial.println(r);
+  float ambtemp = a + b * sqrt(1+c*r) + d*pow(r,5) + e*pow(r,7); // ambient temp
+  float comp = k * (pow(ambtemp,4-delta)-pow(reftemp,4-delta));  // thermopile value to ambient temp
+  
+  // calculate the thermopile temp
+  float v2 = (thermopileValue / 1024) * 3.3 + comp - verr - shiftv; // thermopile voltage
+  float objtemp = pow((v2+k*pow(ambtemp,4-delta))/k, 1/(4-delta)); // object temp
+  
+  Serial.print("thermopile value (A5) = ");
+  Serial.println(thermopileValue);
+  Serial.print("A4 = ");
+  Serial.println(thermistorValue);
+  Serial.print("ambient temp = ");
+  Serial.println(ambtemp);
+  //Serial.print("object temp = ");
+  //Serial.println(objtemp);
+  Serial.println();
+
+  //Write to LED
+  //objtemp = map(thermistorValue, 0, 1023, 0, 255);
+  digitalWrite(2, 10);
+  delay(1000);
+}  
