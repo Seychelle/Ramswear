@@ -1,0 +1,120 @@
+#include <Adafruit_NeoPixel.h>
+
+#define NUM_LEDS 1  // This many NeoPixels...
+#define LED_PIN  1  // are connected to this DIGITAL pin #
+#define NUMPIXELS = 1 
+
+Adafruit_NeoPixel strip(NUM_LEDS, LED_PIN);
+//Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
+
+void setup() {
+  Serial.begin(9600);
+  strip.begin();
+  strip.show();                
+}
+
+void loop() {
+potval = analogRead(potPin); // Well do an anlog read of a pot for now
+Serial.print("potval:");
+Serial.print(potval);
+temp = map(potval, 3, 1023, -20, 100);
+Serial.print("    Temp:");
+Serial.print(temp);
+  delay(200);
+
+int dangerHot = 85; //water boils at 100, we can demonstrate that the glove detects hot temperature by having the IR's sense boiling water
+int painfulHot = 70;
+int okayHot = 60; 
+
+int okayCold = 40;
+int painfulCold = 30; 
+int dangerCold = 20;
+
+strip.setBrightness(50);
+
+
+if(temp >= dangerHot){ //display RED - BLINK - VIBRATE
+    strip.setBrightness(100);
+    strip.setPixelColor(0, 255, 0, 0);
+    strip.show();
+    while(temp >= dangerHot){
+      strip.setBrightness(25);
+      delay(5);
+      strip.setBrightness(100);
+      strip.show();    
+  }
+if(temp < dangerHot && temp >= painfulHot){ // Orange
+    strip.setPixelColor(0, 255, 128, 0);
+    strip.show();
+  }
+
+if(temp < painfulHot && temp >= okayHot){ //Yellow 
+  strip.setPixelColor(0, 255, 255, 0);
+  strip.show();
+  }
+
+if(temp < okayHot && temp > okayCold ){ // Green this covers the upper bound on safe, the 
+  strip.setPixelColor(0, 51, 255, 51);
+  strip.show();
+  }
+if(temp > painfulCold && temp <= okayCold ){ // Light Blue 
+  strip.setPixelColor(0, 0, 255, 255);
+  strip.show(); 
+  }
+if(temp > dangerCold && temp <= painfulCold ){ //medium blue
+  strip.setPixelColor(0, 51, 153, 225);
+  strip.show();
+  }
+
+if(temp <= dangerCold ){ // Dark Blue
+  strip.setPixelColor(0, 0, 0, 225);
+  strip.show();
+  strip.setBrightness(100);
+  while(temp <= dangerCold){
+      strip.setBrightness(25);
+      delay(5);
+      strip.setBrightness(100);
+      strip.show();
+    }
+  }
+
+/* 
+if (temp<=25) { // temp less then 25 so start yellow (255,255,0) and map towards blue (0,0,255)
+  strip.setBrightness(50);
+  Red = map(temp, -20,25,0,255);
+  Green = map(temp, -20,25,0,255) ;
+  Blue = map(temp, -20,25,255,0) ;
+  strip.setPixelColor(0, Red, Green, Blue);
+  strip.show();
+  Serial.print("   Red:");
+Serial.print(Red);
+Serial.print("   Blue:");
+Serial.print(Blue);
+Serial.print("   Green:");
+Serial.println(Green);
+  //colorWipe(strip.Color(Red, Green, Blue), 50);
+  //pixels.setPixelColor(i, pixels.Color(Red,Green,Blue)); 
+}
+
+if (temp>25) { // temp is more then 25 so itll start yellow and map towards Red
+  strip.setBrightness(50);
+  Red = 255 ; 
+  Green = map(temp,25,100,255,0) ; // map from 255 to 0? this should work according to internet..
+  Blue = 0 ; 
+  strip.setPixelColor(0, Red, Green, Blue);
+  strip.show();
+    Serial.print("   Red:");
+Serial.print(Red);
+Serial.print("   Blue:");
+Serial.print(Blue);
+Serial.print("   Green:");
+Serial.println(Green);
+  //pixels.setPixelColor(i, pixels.Color(Red,Green,Blue)); // Moderately bright green color.
+
+//  pixels.show(); // This sends the updated pixel color to the hardware.
+  //colorWipe(strip.Color(Red, Green, Blue), 50); //whats the 50 for? intensity?
+}
+  */
+delay(2); // Pause 2 ms before repeating
+  
+}
