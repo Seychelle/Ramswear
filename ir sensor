@@ -1,0 +1,50 @@
+/*
+  ReadAnalogVoltage
+
+  Reads an analog input on pin 0, converts it to voltage, and prints the result to the Serial Monitor.
+  Graphical representation is available using Serial Plotter (Tools > Serial Plotter menu).
+  Attach the center pin of a potentiometer to pin A0, and the outside pins to +5V and ground.
+
+  This example code is in the public domain.
+
+  http://www.arduino.cc/en/Tutorial/ReadAnalogVoltage
+*/
+float temp;
+
+// the setup routine runs once when you press reset:
+void setup() {
+  // initialize serial communication at 9600 bits per second:
+  Serial.begin(9600);
+}
+
+// the loop routine runs over and over again forever:
+void loop() {
+  // read the input on analog pin 0:
+  float sensorValue = analogRead(A0);
+  // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
+  float voltage = (sensorValue * (5.0 / 1023.0)) / 100.4596;
+  Serial.println(voltage);
+  // print out the value you read:
+//  
+  float oneOverThree = (float)1 /(float)3; // This is to avoid integer division
+  float p0 = (3.8462 * voltage + 28.5228)*(3.8462 * voltage + 28.5228);
+  float p1 = pow( (p0+342.9034), 0.5 ) + 3.8462 * voltage + 28.5228;
+  float p2 = pow(p1, oneOverThree);
+  float p3 = pow(p0,0.5);
+  float p4 = (-1 * p3) + 3.8462 * voltage + 28.5228;
+  float p5 = pow(p4, oneOverThree);
+  Serial.print(p2);
+  Serial.println(" --- P2");
+  //temp = 33 * pow((pow((3.8462 * voltage + 28.5228), 0.5) + 3.8462 * voltage + 28.5228 ), oneOverThree ) + 33 * pow(-1*(pow((3.8462 * voltage + 28.5228),0.5) + 3.8462 * voltage + 28.5228 ), oneOverThree ) - 47.8462;
+  Serial.print(p5);
+  Serial.println(" --- p5");
+  
+ // temp = 33 * pow((pow((3.8462 * voltage + 28.5228), 0.5) + 3.8462 * voltage + 28.5228 ), oneOverThree ) + 33 * pow(-1*(pow((3.8462 * voltage + 28.5228),0.5) + 3.8462 * voltage + 28.5228 ), oneOverThree ) - 47.8462;
+ 
+  
+  float temp2 = 33 * p2 + 33 * p5 - 47.8462;
+  Serial.print(temp2);
+  Serial.println(" -- FINAL TEMP");
+  Serial.println("");
+  delay(2000);
+}
