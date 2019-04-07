@@ -22,29 +22,52 @@ void loop() {
   // read the input on analog pin 0:
   float sensorValue = analogRead(A0);
   // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
-  float voltage = (sensorValue * (5.0 / 1023.0)) / 100.4596;
-  Serial.println(voltage);
-  // print out the value you read:
-//  
+  float voltage = (sensorValue * (5.0 / 1024.0)); //     / 300.4596;
+
+if(voltage != 0 && voltage < 4.9){  
+  voltage = (voltage/300)*1000;
+  Serial.println(voltage, 6);
+  
+
+
   float oneOverThree = (float)1 /(float)3; // This is to avoid integer division
-  float p0 = (3.8462 * voltage + 28.5228)*(3.8462 * voltage + 28.5228);
-  float p1 = pow( (p0+342.9034), 0.5 ) + 3.8462 * voltage + 28.5228;
-  float p2 = pow(p1, oneOverThree);
-  float p3 = pow(p0,0.5);
-  float p4 = (-1 * p3) + 3.8462 * voltage + 28.5228;
-  float p5 = pow(p4, oneOverThree);
-  Serial.print(p2);
-  Serial.println(" --- P2");
-  //temp = 33 * pow((pow((3.8462 * voltage + 28.5228), 0.5) + 3.8462 * voltage + 28.5228 ), oneOverThree ) + 33 * pow(-1*(pow((3.8462 * voltage + 28.5228),0.5) + 3.8462 * voltage + 28.5228 ), oneOverThree ) - 47.8462;
-  Serial.print(p5);
-  Serial.println(" --- p5");
+  //Serial.println("1/3: ");
+  //Serial.println(oneOverThree);
+  float p0 = pow(((3.8462 * voltage) + 28.5228), 2)+ 342.9034;
+  //Serial.println("p0: ");
+  //Serial.println(p0);
+  float p1 = pow(p0, 0.5);
+  //Serial.println("p1: ");
+  //Serial.println(p1);
+  float p2 = p1 + (3.8462*voltage) + 28.5228;
+  //Serial.println("p2: ");
+  //Serial.println(p2);
+  float temp1 = pow(p2, oneOverThree);
+  //Serial.println("temp1: ");
+  //Serial.println(temp1);
+
   
- // temp = 33 * pow((pow((3.8462 * voltage + 28.5228), 0.5) + 3.8462 * voltage + 28.5228 ), oneOverThree ) + 33 * pow(-1*(pow((3.8462 * voltage + 28.5228),0.5) + 3.8462 * voltage + 28.5228 ), oneOverThree ) - 47.8462;
- 
+  float temp2 = p1 * (-1);
+  //Serial.println("temp2: ");
+  //Serial.println(temp2);
+  float p3 = temp2 + (3.8462*voltage) + 28.5228;
+  //Serial.println("p3: ");
+  //Serial.println(p3);
+  bool neg = false;
+  if(p3 < 0){
+    p3 = -p3;
+    neg = true;
+  }
+  float p4 =  pow(p3, oneOverThree);
+  if(neg = true)
+    p4 = -p4;
+  //Serial.println("p4: ");
+  //Serial.println(p4);
   
-  float temp2 = 33 * p2 + 33 * p5 - 47.8462;
-  Serial.print(temp2);
-  Serial.println(" -- FINAL TEMP");
-  Serial.println("");
-  delay(2000);
+  float tempF = ((33 *temp1) + (33*p4)) - 47.8462;
+  Serial.println("tempF: ");
+  Serial.println(tempF);
+  delay(1000);
+  
+  }
 }
