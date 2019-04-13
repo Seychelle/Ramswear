@@ -9,7 +9,14 @@
 
   http://www.arduino.cc/en/Tutorial/ReadAnalogVoltage
 */
-float temp;
+#include "Filter.h"
+ 
+// the <float> makes a filter for float numbers
+// 20 is the weight (20 => 20%)
+// 0 is the initial value of the filter
+
+ExponentialFilter<float> FilteredTemperature(20, 0); 
+float tempFinalG;
 
 // the setup routine runs once when you press reset:
 void setup() {
@@ -31,8 +38,6 @@ if(voltage != 0 && voltage < 4.9){
 
 
   float oneOverThree = (float)1 /(float)3; // This is to avoid integer division
-  //Serial.println("1/3: ");
-  //Serial.println(oneOverThree);
   float p0 = pow(((3.8462 * voltage) + 28.5228), 2)+ 342.9034;
   //Serial.println("p0: ");
   //Serial.println(p0);
@@ -48,11 +53,7 @@ if(voltage != 0 && voltage < 4.9){
 
   
   float temp2 = p1 * (-1);
-  //Serial.println("temp2: ");
-  //Serial.println(temp2);
   float p3 = temp2 + (3.8462*voltage) + 28.5228;
-  //Serial.println("p3: ");
-  //Serial.println(p3);
   bool neg = false;
   if(p3 < 0){
     p3 = -p3;
@@ -64,10 +65,19 @@ if(voltage != 0 && voltage < 4.9){
   //Serial.println("p4: ");
   //Serial.println(p4);
   
-  float tempF = ((33 *temp1) + (33*p4)) - 47.8462;
-  Serial.println("tempF: ");
-  Serial.println(tempF);
+  tempFinalG = ((33 *temp1) + (33*p4)) - 47.8462;
+  Serial.println("tempFinalG: ");
+  Serial.println(tempFinalG);
   delay(1000);
+  
+  
+  
+  FilteredTemperature.Filter(tempFinalG);
+  float SmoothTemperature = FilteredTemperature.Current();
+  
+  Serial.println("Smooth Temp: ");
+  Serial.println(SmoothTemperature);
+
   
   }
 }
